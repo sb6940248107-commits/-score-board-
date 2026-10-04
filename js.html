@@ -1,0 +1,603 @@
+```html
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ระบบนับคะแนนกีฬาตะกร้อ</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, "Tahoma", sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(
+                135deg,
+                #0f2027,
+                #203a43,
+                #2c5364
+            );
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background: #ffffff;
+            border-radius: 25px;
+            padding: 35px;
+
+            box-shadow:
+                0 20px 50px rgba(0, 0, 0, 0.35);
+        }
+
+        /* =========================
+           หัวข้อ
+        ========================= */
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #123c69;
+            font-size: 38px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 18px;
+        }
+
+        /* =========================
+           ตารางคะแนน
+        ========================= */
+
+        .score-board {
+            display: grid;
+            grid-template-columns: 1fr 100px 1fr;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .team {
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            background: #f4f8fb;
+            border: 3px solid #ddd;
+            transition: 0.3s;
+        }
+
+        .team:hover {
+            transform: translateY(-5px);
+            box-shadow:
+                0 10px 25px rgba(0,0,0,0.12);
+        }
+
+        .team-a {
+            border-color: #1976d2;
+        }
+
+        .team-b {
+            border-color: #e53935;
+        }
+
+        .team h2 {
+            font-size: 27px;
+            margin-bottom: 15px;
+        }
+
+        .team-a h2 {
+            color: #1976d2;
+        }
+
+        .team-b h2 {
+            color: #e53935;
+        }
+
+        /* =========================
+           คะแนน
+        ========================= */
+
+        .score {
+            font-size: 80px;
+            font-weight: bold;
+            margin: 10px 0 25px;
+            color: #222;
+        }
+
+        /* =========================
+           ปุ่มคะแนน
+        ========================= */
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            border: none;
+            cursor: pointer;
+            border-radius: 12px;
+            padding: 12px 25px;
+            font-size: 18px;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .btn-1 {
+            background: #4caf50;
+            color: white;
+        }
+
+        /* =========================
+           VS
+        ========================= */
+
+        .vs {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+
+            background: #123c69;
+            color: white;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            font-size: 25px;
+            font-weight: bold;
+
+            margin: auto;
+
+            box-shadow:
+                0 8px 20px rgba(0,0,0,0.25);
+        }
+
+        /* =========================
+           ปุ่มควบคุม
+        ========================= */
+
+        .controls {
+            text-align: center;
+            margin-top: 35px;
+        }
+
+        .reset-btn {
+            background: #333;
+            color: white;
+            padding: 14px 30px;
+            margin-right: 10px;
+        }
+
+        .winner-btn {
+            background: #00897b;
+            color: white;
+            padding: 14px 30px;
+        }
+
+        /* =========================
+           ผลการแข่งขัน
+        ========================= */
+
+        .result {
+            margin-top: 30px;
+            padding: 25px;
+
+            border-radius: 15px;
+
+            text-align: center;
+
+            background: #e8f5e9;
+            color: #1b5e20;
+
+            font-size: 28px;
+            font-weight: bold;
+
+            display: none;
+
+            border: 3px solid #66bb6a;
+        }
+
+        /* =========================
+           Footer
+        ========================= */
+
+        .footer {
+            text-align: center;
+            margin-top: 25px;
+            color: #888;
+            font-size: 14px;
+        }
+
+        /* =========================
+           Responsive
+        ========================= */
+
+        @media (max-width: 700px) {
+
+            .container {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .score-board {
+                grid-template-columns: 1fr;
+            }
+
+            .vs {
+                width: 60px;
+                height: 60px;
+                font-size: 18px;
+            }
+
+            .score {
+                font-size: 60px;
+            }
+
+            .reset-btn,
+            .winner-btn {
+                width: 100%;
+                margin: 5px 0;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- หัวข้อ -->
+
+        <div class="header">
+
+            <h1>
+                🏐 ระบบนับคะแนนกีฬาตะกร้อ
+            </h1>
+
+            <p>
+                การแข่งขันตะกร้อระหว่าง 2 ฝ่าย
+            </p>
+
+        </div>
+
+
+        <!-- ตารางคะแนน -->
+
+        <div class="score-board">
+
+            <!-- ฝ่ายสีน้ำเงิน -->
+
+            <div class="team team-a">
+
+                <h2>
+                    🔵 ฝ่ายสีน้ำเงิน
+                </h2>
+
+                <div
+                    class="score"
+                    id="scoreA"
+                >
+                    0
+                </div>
+
+                <div class="buttons">
+
+                    <button
+                        class="btn-1"
+                        onclick="addScore('A')"
+                    >
+                        +1
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- VS -->
+
+            <div class="vs">
+                VS
+            </div>
+
+
+            <!-- ฝ่ายสีแดง -->
+
+            <div class="team team-b">
+
+                <h2>
+                    🔴 ฝ่ายสีแดง
+                </h2>
+
+                <div
+                    class="score"
+                    id="scoreB"
+                >
+                    0
+                </div>
+
+                <div class="buttons">
+
+                    <button
+                        class="btn-1"
+                        onclick="addScore('B')"
+                    >
+                        +1
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+        <!-- ปุ่มควบคุม -->
+
+        <div class="controls">
+
+            <button
+                class="reset-btn"
+                onclick="resetScore()"
+            >
+                🔄 Reset คะแนน
+            </button>
+
+            <button
+                class="winner-btn"
+                onclick="showWinner()"
+            >
+                🏆 แสดงผู้ชนะ
+            </button>
+
+        </div>
+
+
+        <!-- แสดงผลผู้ชนะ -->
+
+        <div
+            class="result"
+            id="result"
+        ></div>
+
+
+        <!-- Footer -->
+
+    </div>
+
+
+    <script>
+
+        /* =========================
+           คะแนนเริ่มต้น
+        ========================= */
+
+        let scoreA = 0;
+        let scoreB = 0;
+
+        // สถานะว่าจบรอบแล้วหรือยัง
+        let roundFinished = false;
+
+
+        /* =========================
+           เพิ่มคะแนน
+        ========================= */
+
+        function addScore(team) {
+
+            // ถ้าจบรอบแล้ว ห้ามเพิ่มคะแนน
+            if (roundFinished) {
+                return;
+            }
+
+
+            // เพิ่มคะแนนฝ่ายสีน้ำเงิน
+            if (team === "A") {
+
+                scoreA++;
+
+            }
+
+
+            // เพิ่มคะแนนฝ่ายสีแดง
+            if (team === "B") {
+
+                scoreB++;
+
+            }
+
+
+            // แสดงคะแนนใหม่
+            updateScore();
+
+
+            // ตรวจสอบผู้ชนะอัตโนมัติ
+            checkWinner();
+
+        }
+
+
+        /* =========================
+           แสดงคะแนน
+        ========================= */
+
+        function updateScore() {
+
+            document.getElementById("scoreA").textContent =
+                scoreA;
+
+            document.getElementById("scoreB").textContent =
+                scoreB;
+
+        }
+
+
+        /* =========================
+           ตรวจสอบผู้ชนะอัตโนมัติ
+        ========================= */
+
+        function checkWinner() {
+
+            // ฝ่ายสีน้ำเงินถึง 15 คะแนน
+            if (scoreA >= 15) {
+
+                roundFinished = true;
+
+                showWinner();
+
+            }
+
+
+            // ฝ่ายสีแดงถึง 15 คะแนน
+            else if (scoreB >= 15) {
+
+                roundFinished = true;
+
+                showWinner();
+
+            }
+
+        }
+
+
+        /* =========================
+           แสดงผู้ชนะ
+        ========================= */
+
+        function showWinner() {
+
+            const result =
+                document.getElementById("result");
+
+
+            result.style.display = "block";
+
+
+            if (scoreA >= 15) {
+
+                result.innerHTML =
+                    "🏆 ฝ่ายสีน้ำเงินเป็นผู้ชนะ!<br>" +
+                    "<span style='font-size:22px;'>" +
+                    "คะแนน " +
+                    scoreA +
+                    " - " +
+                    scoreB +
+                    "</span>";
+
+            }
+
+
+            else if (scoreB >= 15) {
+
+                result.innerHTML =
+                    "🏆 ฝ่ายสีแดงเป็นผู้ชนะ!<br>" +
+                    "<span style='font-size:22px;'>" +
+                    "คะแนน " +
+                    scoreB +
+                    " - " +
+                    scoreA +
+                    "</span>";
+
+            }
+
+
+            else if (scoreA > scoreB) {
+
+                result.innerHTML =
+                    "🏆 ฝ่ายสีน้ำเงินเป็นผู้ชนะ!<br>" +
+                    "<span style='font-size:22px;'>" +
+                    "คะแนน " +
+                    scoreA +
+                    " - " +
+                    scoreB +
+                    "</span>";
+
+            }
+
+
+            else if (scoreB > scoreA) {
+
+                result.innerHTML =
+                    "🏆 ฝ่ายสีแดงเป็นผู้ชนะ!<br>" +
+                    "<span style='font-size:22px;'>" +
+                    "คะแนน " +
+                    scoreB +
+                    " - " +
+                    scoreA +
+                    "</span>";
+
+            }
+
+
+            else {
+
+                result.innerHTML =
+                    "🤝 ผลการแข่งขันเสมอกัน!<br>" +
+                    "<span style='font-size:22px;'>" +
+                    "คะแนน " +
+                    scoreA +
+                    " - " +
+                    scoreB +
+                    "</span>";
+
+            }
+
+        }
+
+
+        /* =========================
+           Reset คะแนน
+        ========================= */
+
+        function resetScore() {
+
+            scoreA = 0;
+            scoreB = 0;
+
+            roundFinished = false;
+
+
+            // อัปเดตคะแนน
+            updateScore();
+
+
+            // ซ่อนผลการแข่งขัน
+            document.getElementById(
+                "result"
+            ).style.display = "none";
+
+        }
+
+    </script>
+
+</body>
+</html>
+
